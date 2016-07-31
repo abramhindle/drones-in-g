@@ -50,6 +50,135 @@ s.scope;
 ~progII = [~gmaj,~emin,~cmaj,~dmaj];
 
 
+
+
+SynthDef(\drone, { |out, freq = 440, gate = 0.5, amp = 1.0, attack = 0.04, release=0.1 |
+	var sig,nsize,n = (2..20);
+	nsize = n.size;
+	sig = ((
+		n.collect {arg i; 
+			SinOsc.ar( (1.0 - (1.0/(i*i))) * freq )
+		}).sum / nsize)
+	* EnvGen.kr(Env.adsr(attack, 0.2, 0.6, release), gate, doneAction:2)
+	* amp;
+    Out.ar(out, sig ! 2)
+}).add;
+
+	Pbind(
+		\instrument,\drone,
+		\dur, Pstutter(4,Pshuf([0.1,0.2,0.4,0.5,1.0,4.0],inf),inf),
+		\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
+		\scale, Scale.major, // your scale goes here
+		\root, Pstutter(4,Pshuf(~gsmroot[(0..(~gsmroot.size / 2))],inf),inf), // semitones relative to 60.midicps, so this is G
+//\attack, 0.0,
+//		\release, 1.0
+	).play;
+
+Pdef(\x, Pbind(\instrument,\drone,
+	\dur, Pstutter(4,Pshuf([1.0,2.0,0.1,0.2],inf),inf),
+	\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
+	\scale, Scale.major, // your scale goes here
+	\attack, 0.3,
+	\release, 3.0,
+	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+));
+Pdef(\x).quant = 2.0; // 2 seconds
+Pbindf(Pdef(\x)).play;
+
+Pdef(\x, Pbind(\instrument,\drone,
+	\dur, Pstutter(4,Pshuf([1.0,2.0,0.1,0.2],inf),inf),
+	\degree, Pshuf(~chords, inf), // your melody goes here
+	\scale, Scale.major, // your scale goes here
+	\attack, 0.3,
+	\release, Prand([3.0,1.0,5.0,0.1],inf),
+	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+));
+
+// lots of drones together
+(
+a = 	Pbind(\instrument,\drone,
+	\dur, Pstutter(2,Pshuf([0.1,0.2,0.3,0.4,0.5],inf),inf),
+	\degree, Prand(~allchords, inf), // your melody goes here
+	\scale, Scale.major, // your scale goes here
+	\attack, Prand([0.3,0.5,0.1],inf),
+	\release, Prand([3.0,1.0,5.0,0.1],inf),
+	\root, Pstutter(4,Pshuf(~gsmroot[(0..(4 * ~gsmroot.size / 4))],inf),inf)
+);
+b = Pbind(\instrument,\drone,
+	\dur, Pshuf([5.0,4.0,3.0,9.0],inf),
+	\degree, Prand(~chords ++ (\rest!1),inf),
+	\scale, Scale.major,
+	\attack, 0.3,
+	\release, Prand([3.0,1.0],inf),
+    //	\detune, Prand([0.0,0.0,0.0,1.0,3.0,30.0],inf),
+	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+);
+Pdef(\x,Ppar([a,b,a,b,a,b]));
+)
+Pdef(\x, Pbind(\instrument,\drone,
+	\dur, Pstutter(4,Pshuf([1/8,1/4,1,2,1/16],inf),inf),
+	\degree, Pshuf(~allchords, inf), // your melody goes here
+	\scale, Scale.major, // your scale goes here
+	\attack, Prand([0.3,0.1,0.05,0.5],inf),
+	\release, Prand([3.0,1.0,5.0,0.1],inf),
+	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+));
+Pdef(\x).play;
+Pbindef(\x, \dur, Prand([1/2,1,2,4,8],inf)).play;
+Pbindef(\x, \dur, Pstutter(~chords.size,Pshuf([1/8,1/4,1,2,1/16,4],inf),inf)).play;
+Pbindef(\x, \degree, Pshuf((0..7), inf)).play;
+
+// Play low
+Pbindef(\x,	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(1 * ~gsmroot.size / 4))],inf),inf)).play; //
+Pbindef(
+// Play higher
+Pbindef(\x,	\root, Pstutter(~chords.size,Pshuf(~gsmroot[((~gsmroot.size / 8)..(~gsmroot.size - 1))],inf),inf)).play; //
+	
+Pbindef(\x,\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf)).play;
+
+// see your pdefs
+t = PdefAllGui(8);
+
+TempoClock.default.tempo();
+// 80 BPM
+TempoClock.default.tempo_(80/60);
+
+
+
+(
+a = Pdef(\a,Pbind(\instrument,\drone,
+	\dur, Pstutter(2,Pshuf([0.1,0.2,0.3,0.4,0.5],inf),inf),
+	\degree, Prand(~allchords, inf), // your melody goes here
+	\scale, Scale.major, // your scale goes here
+	\attack, Prand([0.3,0.5,0.1],inf),
+	\release, Prand([3.0,1.0,5.0,0.1],inf),
+	\root, Pstutter(4,Pshuf(~gsmroot[(0..(4 * ~gsmroot.size / 4))],inf),inf)
+));
+b = Pdef(\b,Pbind(\instrument,\drone,
+	\dur, Pshuf([5.0,4.0,3.0,9.0],inf),
+	\degree, Prand(~chords ++ (\rest!1),inf),
+	\scale, Scale.major,
+	\attack, 0.3,
+	\release, Prand([3.0,1.0],inf),
+    //	\detune, Prand([0.0,0.0,0.0,1.0,3.0,30.0],inf),
+	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+));
+Pdef(\y,Ppar([Pdef(\a),Pdef(\b)]));
+)
+Pdef(\y).quant = 2.0;
+Pdef(\y).play;
+Pdef(\y).stop;
+Pdef(\x).stop;
+Pbindef(\a,\dur,1/2).play;
+Pbindef(\b,\dur,1/2).play;
+Pbindef(\b, \dur, Pshuf([5.0,4.0,3.0,9.0],inf)).play;
+Pbindef(\b, \degree, Pshuf(~allchords,inf)).play;
+Pbindef(\b, \root, ~gsmroot[0]).play;
+Pbindef(\b,	\root, Pstutter(7,Pshuf(~gsmroot,inf),inf)); //
+
+Pbindef(\a, \root, ~gsmroot[0]-24).play;
+Pbindef(\a, \dur, Pstutter(2,Pshuf([1/2,1/2,3/4,1],inf),inf)).play;
+
 /* 
 ~mystupidpbinds = {
 
@@ -105,6 +234,12 @@ s.scope;
 		\scale, Scale.major, // your scale goes here
 		\root, Pstutter(4,Pshuf(~gsmroot,inf),inf), // semitones relative to 60.midicps, so this is G
 	).play;
+)	
+};
+*/
+
+
+
 SynthDef(\sawpulse, { |out, freq = 440, gate = 0.5, plfofreq = 6, mw = 0, ffreq = 2000, rq = 0.3, freqlag = 0.05, amp = 1|
     var sig, plfo, fcurve;
     plfo = SinOsc.kr(plfofreq, mul:mw, add:1);
@@ -117,82 +252,19 @@ SynthDef(\sawpulse, { |out, freq = 440, gate = 0.5, plfofreq = 6, mw = 0, ffreq 
         * amp;
     Out.ar(out, sig ! 2)
 }).add;
-)	
+Pdef(\saw,
 	Pbind(
 		\instrument,\sawpulse,
-		\dur, Pstutter(4,Pshuf([0.1,0.25,0.33,0.44],inf),inf),
+		\dur, Pstutter(4,Pshuf([1/16,1/4,1/2],inf),inf),
 		\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
 		\scale, Scale.major, // your scale goes here
 		\root, Pstutter(4,Pshuf(~gsmroot,inf),inf), // semitones relative to 60.midicps, so this is G
 		\attack, 0.0,
 		\release, 1.0
-	).play;
-		
-};
-*/
-
-
-SynthDef(\drone, { |out, freq = 440, gate = 0.5, amp = 1.0, attack = 0.04, release=0.1 |
-	var sig,nsize,n = (2..20);
-	nsize = n.size;
-	sig = ((
-		n.collect {arg i; 
-			SinOsc.ar( (1.0 - (1.0/(i*i))) * freq )
-		}).sum / nsize)
-	* EnvGen.kr(Env.adsr(attack, 0.2, 0.6, release), gate, doneAction:2)
-	* amp;
-    Out.ar(out, sig ! 2)
-}).add;
-
-	Pbind(
-		\instrument,\drone,
-		\dur, Pstutter(4,Pshuf([0.1,0.2,0.4,0.5,1.0,4.0],inf),inf),
-		\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
-		\scale, Scale.major, // your scale goes here
-		\root, Pstutter(4,Pshuf(~gsmroot[(0..(~gsmroot.size / 2))],inf),inf), // semitones relative to 60.midicps, so this is G
-//\attack, 0.0,
-//		\release, 1.0
-	).play;
-
-Pdef(\x, Pbind(\instrument,\drone,
-	\dur, Pstutter(4,Pshuf([1.0,2.0,0.1,0.2],inf),inf),
-	\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
-	\scale, Scale.major, // your scale goes here
-	\attack, 0.3,
-	\release, 3.0,
-	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
-));
-Pdef(\x).quant = 2.0; // 2 seconds
-Pbindf(Pdef(\x)).play;
-
-Pdef(\x, Pbind(\instrument,\drone,
-	\dur, Pstutter(4,Pshuf([1.0,2.0,0.1,0.2],inf),inf),
-	\degree, Prand(~allchords, inf), // your melody goes here
-	\scale, Scale.major, // your scale goes here
-	\attack, 0.3,
-	\release, Prand([3.0,1.0,5.0,0.1],inf),
-	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
-));
-
-// lots of drones together
-(
-a = 	Pbind(\instrument,\drone,
-	\dur, Pstutter(2,Pshuf([0.1,0.2,0.3,0.4,0.5],inf),inf),
-	\degree, Prand(~allchords, inf), // your melody goes here
-	\scale, Scale.major, // your scale goes here
-	\attack, Prand([0.3,0.5,0.1],inf),
-	\release, Prand([3.0,1.0,5.0,0.1],inf),
-	\root, Pstutter(4,Pshuf(~gsmroot[(0..(4 * ~gsmroot.size / 4))],inf),inf)
-);
-b = Pbind(\instrument,\drone,
-	\dur, Pshuf([5.0,4.0,3.0,9.0],inf),
-	\degree, Prand(~chords ++ (\rest!1),inf),
-	\scale, Scale.major,
-	\attack, 0.3,
-	\release, Prand([3.0,1.0],inf),
-    //	\detune, Prand([0.0,0.0,0.0,1.0,3.0,30.0],inf),
-	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
-);
-Pdef(\x,Ppar([a,b,a,b,a,b]));
-)
-
+	));
+Pdef(\saw).play;
+Pdef(\saw).quant = 0.0;
+Pbindef(\saw, \attack, 0.5).play;
+Pbindef(\saw, \dur, Pstutter(4,Pshuf([1,2,3,4,8],inf),inf),).play;
+Pbindef(\saw, \root, Pstutter(4,Prand(~gsmroot,inf),inf)).play;
+Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords, inf))).play; // your melody goes h
