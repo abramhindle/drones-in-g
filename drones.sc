@@ -5,6 +5,13 @@ s.freqscope;
 s.plotTree;
 s.scope;
 
+t = PdefAllGui(8);
+
+TempoClock.default.tempo();
+// 80 BPM
+TempoClock.default.tempo_(80/60);
+
+
 // G, A, B, C, D, E, and F♯
 
 //Scale.major.degreeToFreq((0..7), (60-5).midicps, 0);
@@ -137,11 +144,7 @@ Pbindef(\x,	\root, Pstutter(~chords.size,Pshuf(~gsmroot[((~gsmroot.size / 8)..(~
 Pbindef(\x,\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf)).play;
 
 // see your pdefs
-t = PdefAllGui(8);
 
-TempoClock.default.tempo();
-// 80 BPM
-TempoClock.default.tempo_(80/60);
 
 
 
@@ -258,13 +261,26 @@ Pdef(\saw,
 		\dur, Pstutter(4,Pshuf([1/16,1/4,1/2],inf),inf),
 		\degree, Pshuf([Pseq(~progI),Pseq(~progII)], inf), // your melody goes here
 		\scale, Scale.major, // your scale goes here
-		\root, Pstutter(4,Pshuf(~gsmroot,inf),inf), // semitones relative to 60.midicps, so this is G
+		\root, Pstutter(4,Pshuf(~gsmroot[(0..(~gsmroot.size-2))],inf),inf), // semitones relative to 60.midicps, so this is G
 		\attack, 0.0,
 		\release, 1.0
 	));
+
 Pdef(\saw).play;
+
 Pdef(\saw).quant = 0.0;
-Pbindef(\saw, \attack, 0.5).play;
+Pbindef(\saw, \dur, Pseq([1/4,1/8,1/8,1/8],inf)).play;
+Pbindef(\saw, \attack, 0.1).play;
+Pbindef(\saw, \release, 0.1).play;
 Pbindef(\saw, \dur, Pstutter(4,Pshuf([1,2,3,4,8],inf),inf),).play;
-Pbindef(\saw, \root, Pstutter(4,Prand(~gsmroot,inf),inf)).play;
-Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords, inf))).play; // your melody goes h
+Pbindef(\saw, \root, Pstutter(4,Prand(~gsmroot[(0..(~gsmroot.size-2))],inf),inf)).play;
+Pbindef(\saw, \amp, 0.1).play;
+Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords ++ (\rest!3), inf))).play; // your melody goes h
+
+// Here's a fade out of notes
+Pbindef(\saw, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
+
+Pbindef(\a, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
+Pbindef(\b, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
+Pbindef(\y, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
+Pbindef(\y, \midinote, Pseq((32..64).reverse)).play;
