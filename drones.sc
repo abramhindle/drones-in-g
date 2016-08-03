@@ -9,7 +9,7 @@ t = PdefAllGui(8);
 
 TempoClock.default.tempo();
 // 80 BPM
-TempoClock.default.tempo_(80/60);
+TempoClock.default.tempo_(150/60);
 
 
 // G, A, B, C, D, E, and F♯
@@ -90,15 +90,15 @@ Pdef(\x, Pbind(\instrument,\drone,
 	\root, Pstutter(4,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
 ));
 Pdef(\x).quant = 2.0; // 2 seconds
-Pbindf(Pdef(\x)).play;
-
+Pbindf(Pdef(\x)).stop;
+Pdef(\x).play;
 Pdef(\x, Pbind(\instrument,\drone,
 	\dur, Pstutter(4,Pshuf([1.0,2.0,0.1,0.2],inf),inf),
 	\degree, Pshuf(~chords, inf), // your melody goes here
 	\scale, Scale.major, // your scale goes here
 	\attack, 0.3,
 	\release, Prand([3.0,1.0,5.0,0.1],inf),
-	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
+	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(1 * ~gsmroot.size / 4))],inf),inf) //
 ));
 
 // lots of drones together
@@ -131,12 +131,16 @@ Pdef(\x, Pbind(\instrument,\drone,
 	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(3 * ~gsmroot.size / 4))],inf),inf) //
 ));
 Pdef(\x).play;
-Pbindef(\x, \dur, Prand([1/2,1,2,4,8],inf)).play;
+Pbindef(\x, \dur, Pstutter(~chords.size,Prand([1/4,2.0,4.0,8.0],inf),inf)).play;
+Pbindef(\x,	\degree, Pshuf(~chords, inf)).play; // your melody goes here
+
 Pbindef(\x, \dur, Pstutter(~chords.size,Pshuf([1/8,1/4,1,2,1/16,4],inf),inf)).play;
 Pbindef(\x, \degree, Pshuf((0..7), inf)).play;
 
 // Play low
 Pbindef(\x,	\root, Pstutter(~chords.size,Pshuf(~gsmroot[(0..(1 * ~gsmroot.size / 4))],inf),inf)).play; //
+Pbindef(\x,	\root, ~gsmroot[0]).play;//Pstutter(~chords.size,Pshuf(~gsmroot[(0..(1 * ~gsmroot.size / 4))],inf),inf)).play; //
+
 Pbindef(
 // Play higher
 Pbindef(\x,	\root, Pstutter(~chords.size,Pshuf(~gsmroot[((~gsmroot.size / 8)..(~gsmroot.size - 1))],inf),inf)).play; //
@@ -176,12 +180,14 @@ Pbindef(\a,\dur,1/2).play;
 Pbindef(\b,\dur,1/2).play;
 Pbindef(\b, \dur, Pshuf([5.0,4.0,3.0,9.0],inf)).play;
 Pbindef(\b, \degree, Pshuf(~allchords,inf)).play;
-Pbindef(\b, \root, ~gsmroot[0]).play;
-Pbindef(\b,	\root, Pstutter(7,Pshuf(~gsmroot,inf),inf)); //
+Pbindef(\b, \root, Pstutter(7,Prand(~gsmroot[(3..(~gsmroot.size - 1))],inf))).play;
+Pbindef(\b,	\root, ~gsmroot[0]);//Pstutter(7,Pshuf(~gsmroot,inf),inf)); //
+Pbindef(\b,	\root, ~gsmroot[0]-24);//Pstutter(7,Pshuf(~gsmroot,inf),inf)); //
+Pbindef(\a,	\root, ~gsmroot[0]-12);//Pstutter(7,Pshuf(~gsmroot,inf),inf)); //
 
-Pbindef(\a, \root, ~gsmroot[0]-24).play;
-Pbindef(\a, \dur, Pstutter(2,Pshuf([1/2,1/2,3/4,1],inf),inf)).play;
-
+Pbindef(\a, \root, Pstutter(7,Prand(~gsmroot[(0..3)],inf))).play;
+Pbindef(\a, \dur, Pstutter(2,Pshuf([1/4,1/8,1/16,1/8],inf),inf)).play;
+Pbindef(
 /* 
 ~mystupidpbinds = {
 
@@ -266,21 +272,25 @@ Pdef(\saw,
 		\release, 1.0
 	));
 
+Pdef(\saw).stop;
 Pdef(\saw).play;
-
 Pdef(\saw).quant = 0.0;
-Pbindef(\saw, \dur, Pseq([1/4,1/8,1/8,1/8],inf)).play;
+Pbindef(\saw, \dur, Pseq([1/4,1/8,1/8,1/8,1/2,1],inf)).play;
 Pbindef(\saw, \attack, 0.1).play;
 Pbindef(\saw, \release, 0.1).play;
 Pbindef(\saw, \dur, Pstutter(4,Pshuf([1,2,3,4,8],inf),inf),).play;
 Pbindef(\saw, \root, Pstutter(4,Prand(~gsmroot[(0..(~gsmroot.size-2))],inf),inf)).play;
-Pbindef(\saw, \amp, 0.1).play;
-Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords ++ (\rest!3), inf))).play; // your melody goes h
+Pbindef(\saw, \amp, Prand([0.1,0.001,0.01],inf)).play;
+Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords ++ (\rest!3), inf))).play; // your melody goes 
+Pbindef(\saw,\degree, Pstutter(4,Pshuf(~allchords ++ (\rest!9), inf))).play; // your melody goes h
 
 // Here's a fade out of notes
 Pbindef(\saw, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
 
 Pbindef(\a, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
 Pbindef(\b, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
-Pbindef(\y, \amp, Pseq((0.1*(0..100)/100.0).reverse)).play;
-Pbindef(\y, \midinote, Pseq((32..64).reverse)).play;
+Pbindef(\y, \amp, Pseq((0.1*(0..100)/100.0).reverse)g).play;
+	Pbindef(\y, \midinote, Pseq((32..64).reverse)).play;
+Pdef(\saw).stop;
+	Pdef(\x).stop;
+	Pdef(\y).stop;
